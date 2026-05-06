@@ -1,21 +1,21 @@
 # Phase 0: Architecture Foundation (Week 1)
 ## Detailed Planning & Execution Guide
 
-**Current Status:** Pre-build (planning stage)  
-**You are here:** About to start Phase 0  
+**Current Status:** Pre-build planning stage  
+**You are here:** Preparing Phase 0 before any Next.js code is written  
 **Duration:** 1 week (days 1-5 ideal)  
-**Extends from:** PORTFOLIO_PROJECT_REQUIREMENTS.md Roadmap (Phase 0 section)
+**Extends from:** `PORTFOLIO_PROJECT_REQUIREMENTS.md` roadmap (Phase 0 section)
 
 ---
 
 ## Overview
 
-Before writing any Next.js code, you must define:
-1. **Content Model** - What data structure do your projects, blog posts, case studies live in?
-2. **Design System** - What colors, fonts, spacing, animations will be reused everywhere?
-3. **Information Architecture** - How do visitors navigate? What pages exist? How do audiences find different content?
+Before writing any Next.js code, this phase defines:
+1. **Content Model** - What data structure do projects, blog posts, and case studies use?
+2. **Design System** - What colors, fonts, spacing, and animations are reused everywhere?
+3. **Information Architecture** - How do visitors navigate, what pages exist, and how do different audiences find content?
 
-This phase is **100% planning/documentation**. No code, no builds yet. Getting it wrong here = weeks of rework later.
+This phase is **planning and documentation only**. There is no code, no build, and no deployment yet. Getting the structure wrong here creates rework later.
 
 ---
 
@@ -986,7 +986,7 @@ portfolio/
 ├── package.json
 ├── tsconfig.json
 ├── next.config.js
-├── tailwind.config.js
+├── tailwind.config.ts
 └── README.md
 \`\`\`
 
@@ -1095,7 +1095,7 @@ src/styles/
 ├── animations.css            # Motion definitions (11.3 governance)
 ├── accessibility.css         # Accessibility-specific styles (12.1)
 │                             # (focus states, reduced-motion, etc.)
-└── tailwind.config.js        # Tailwind extends with token colors/spacing
+└── tailwind.config.ts        # Tailwind extends with token colors/spacing
 \`\`\`
 
 **Design tokens live here** as CSS variables so components access them consistently.
@@ -1342,24 +1342,48 @@ Define naming conventions, git workflow, and development patterns:
 
 ## Component Props Interface Pattern
 
-\`\`\`tsx
-// Button.types.ts
-export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+The Button example is placed here because this section defines the component naming, props, and folder conventions that Phase 1 will use. Keeping the example next to those rules makes the pattern easier to follow and prevents the scaffold from drifting away from the doc.
+
+```typescript
+// src/components/ui/Button.tsx
+import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import { forwardRef } from 'react';
+import { twMerge } from 'tailwind-merge';
+import { clsx } from 'clsx';
+
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'ghost';
   size?: 'sm' | 'md' | 'lg';
   loading?: boolean;
   asChild?: boolean;
+  children?: ReactNode;
 }
 
-// Button.tsx
-export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ variant = 'primary', size = 'md', ...props }, ref) => {
-    return <button ref={ref} {...props} />;
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ variant = 'primary', size = 'md', className, children, ...props }, ref) => {
+    const baseStyles = 'font-semibold rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2';
+    const variantStyles = {
+      primary: 'bg-primary-500 text-white hover:bg-primary-600',
+      secondary: 'bg-neutral-100 text-neutral-900 hover:bg-neutral-200',
+      ghost: 'bg-transparent text-primary-500 hover:bg-primary-50',
+    } as const;
+    const sizeStyles = {
+      sm: 'px-3 py-2 text-sm',
+      md: 'px-4 py-2.5 text-base',
+      lg: 'px-6 py-3 text-lg',
+    } as const;
+
+    const classes = twMerge(clsx(baseStyles, variantStyles[variant], sizeStyles[size], className));
+
+    return (
+      <button ref={ref} className={classes} {...props}>
+        {children}
+      </button>
+    );
   }
 );
 Button.displayName = 'Button';
-\`\`\`
+```
 
 ---
 
@@ -1729,23 +1753,25 @@ Environment variables are separated into:
 
 ### Local Development
 
-1. Create \`.env.local\` in project root (git-ignored):
-   \`\`\`bash
-   # .env.local (NEVER commit this file)
-   NEXT_PUBLIC_ANALYTICS_ID=your-plausible-domain
-   NEXT_PUBLIC_FORM_ENDPOINT=https://formspree.io/f/YOUR_ID
-   NEXT_PUBLIC_CMS_PROJECT_ID=your_sanity_project_id
-   CMS_API_TOKEN=your_api_token_here
-   \`\`\`
+1. Create `.env.local` in project root (git-ignored):
+  ```bash
+  # .env.local (NEVER commit this file)
+  NEXT_PUBLIC_SITE_URL=http://localhost:3000
+  NEXT_PUBLIC_ANALYTICS_ID=your-plausible-domain
+  NEXT_PUBLIC_FORM_ENDPOINT=https://formspree.io/f/YOUR_ID
+  NEXT_PUBLIC_CMS_PROJECT_ID=your_sanity_project_id
+  CMS_API_TOKEN=your_api_token_here
+  ```
 
-2. Create \`.env.example\` in project root (safe to commit):
-   \`\`\`bash
-   # .env.example (template for team/docs)
-   NEXT_PUBLIC_ANALYTICS_ID=your-domain
-   NEXT_PUBLIC_FORM_ENDPOINT=https://formspree.io/f/FORM_ID
-   NEXT_PUBLIC_CMS_PROJECT_ID=PROJECT_ID
-   CMS_API_TOKEN=API_TOKEN_HERE
-   \`\`\`
+2. Create `.env.example` in project root (safe to commit):
+  ```bash
+  # .env.example (template for team/docs)
+  NEXT_PUBLIC_SITE_URL=https://portfolio.example.com
+  NEXT_PUBLIC_ANALYTICS_ID=your-domain
+  NEXT_PUBLIC_FORM_ENDPOINT=https://formspree.io/f/FORM_ID
+  NEXT_PUBLIC_CMS_PROJECT_ID=PROJECT_ID
+  CMS_API_TOKEN=API_TOKEN_HERE
+  ```
 
 ### Vercel Deployment
 

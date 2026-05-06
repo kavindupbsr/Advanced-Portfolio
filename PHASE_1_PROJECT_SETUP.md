@@ -9,7 +9,7 @@
 ## Overview
 
 Phase 1 takes all the decisions from Phase 0 and bootstraps a live Next.js project. By end of Phase 1:
-- Next.js 5.1 runs locally with hot reload
+- Next.js App Router runs locally with hot reload
 - Design tokens are defined in CSS variables
 - TypeScript strict mode enforces type safety
 - Environment variables are templated
@@ -17,6 +17,36 @@ Phase 1 takes all the decisions from Phase 0 and bootstraps a live Next.js proje
 - Vercel deployment is configured
 - CI/CD pipeline runs linting, building, and performance checks
 - Folder structure matches Phase 0 specification
+
+## Scaffold Wiring Map
+
+These root files are the first pieces of the codebase, and each one has a specific job. Some of them are currently only planned, because you removed the generated configs and we are documenting the intended wiring before recreating them:
+
+- `package.json` will be the command center. It will define the scripts that drive the workflow: dev server, build, lint, type-check, unit tests, E2E tests, and bundle analysis.
+- `vitest.config.ts` will control unit test behavior. It will tell Vitest to run in a browser-like `jsdom` environment so component tests can render React safely.
+- `playwright.config.ts` will control browser tests. It will point Playwright at `tests/e2e/` so end-to-end checks can open the real app and verify user flows.
+- `src/` is where application code lives. The app routes, components, styles, and utilities all connect through this folder.
+- `src/app/` is the routing layer. Every page and API route you create later will start here.
+- `src/components/` is the reusable UI layer. Pages import from here instead of duplicating markup.
+- `src/styles/` is where tokens and global styles connect the design system to the app.
+- `tests/` is where validation lives. Unit tests prove small pieces work; E2E tests prove the full flow works.
+
+How the pieces connect:
+
+1. `package.json` calls the tools once we recreate it.
+2. Vitest reads `vitest.config.ts` and runs unit tests against React components and utilities.
+3. Playwright reads `playwright.config.ts` and runs browser checks against the local dev server.
+4. The app code under `src/` is what both test layers validate.
+5. CI uses the same scripts, so local checks and pipeline checks stay aligned.
+
+Start-from-beginning order:
+
+1. Confirm the root scripts in `package.json`.
+2. Create the `src/` structure from Task 1.
+3. Add environment files from Task 2.
+4. Wire Next.js config from Task 3.
+5. Add tokens and global styles from Tasks 4-5.
+6. Add tests and run them locally before moving to CI.
 
 ---
 
@@ -40,7 +70,13 @@ npx create-next-app@latest portfolio \
   --src-dir \
   --import-alias '@/*' \
   --no-git
+
+cd portfolio
+npm install -D prettier vitest @playwright/test
+npm install clsx tailwind-merge
 ```
+
+This ensures CI commands like `npm run format:check`, `npm run test`, and `npm run test:e2e` have their required binaries installed, and component class merging is safe for Tailwind overrides.
 
 **Verify:**
 ```bash
@@ -138,8 +174,10 @@ portfolio/
 ├── next.config.js              # (Task 3: configure ISR, image optimization)
 ├── tsconfig.json               # (Task 4: strict mode enabled)
 ├── tailwind.config.ts          # (Task 5: tokens + custom config)
-├── eslint.config.js            # (Task 6: code quality)
+├── .eslintrc.json              # (Task 6: code quality)
 ├── .prettierrc                 # (Task 6: formatting)
+├── vitest.config.ts            # Unit test config (jsdom + coverage)
+├── playwright.config.ts        # E2E test config (webServer + testDir)
 ├── package.json
 └── README.md
 ```
@@ -161,11 +199,12 @@ Phase 0 Task 11 defined the schema; Phase 1 implements `.env.local` and `.env.ex
 
 **Deliverable 2.1: `.env.example` (Safe Reference)**
 
-Create `c:\Users\ASUS TUF\Desktop\Portfolio\.env.example`:
+Create `.env.example` in the project root (`portfolio/.env.example`):
 
 ```env
 # Public variables (exposed in browser via NEXT_PUBLIC_ prefix)
-NEXT_PUBLIC_ANALYTICS_ID=your_plausible_analytics_id
+NEXT_PUBLIC_SITE_URL=https://your-production-domain.com
+NEXT_PUBLIC_ANALYTICS_ID=your-domain.com
 NEXT_PUBLIC_FORM_ENDPOINT=your_formspree_or_basin_form_id
 NEXT_PUBLIC_CMS_PROJECT_ID=your_sanity_project_id_or_tbd
 NEXT_PUBLIC_CMS_DATASET=development
@@ -187,11 +226,12 @@ CMS_API_TOKEN=your_cms_read_token_here
 
 **Deliverable 2.2: `.env.local` (Development, Git-Ignored)**
 
-Create `c:\Users\ASUS TUF\Desktop\Portfolio\.env.local` (add to `.gitignore`):
+Create `.env.local` in the project root (`portfolio/.env.local`) and keep it git-ignored:
 
 ```env
 # Local development values
-NEXT_PUBLIC_ANALYTICS_ID=dev_placeholder_123
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+NEXT_PUBLIC_ANALYTICS_ID=localhost
 NEXT_PUBLIC_FORM_ENDPOINT=dev_form_id
 NEXT_PUBLIC_CMS_PROJECT_ID=dev_project
 NEXT_PUBLIC_CMS_DATASET=development
@@ -206,9 +246,12 @@ In Vercel dashboard (Phase 1 Task 3.2), set secrets per environment:
 
 | Variable | Development | Staging | Production |
 |----------|-------------|---------|------------|
-| NEXT_PUBLIC_ANALYTICS_ID | dev_123 | staging_456 | prod_789 |
+| NEXT_PUBLIC_SITE_URL | http://localhost:3000 | https://staging.your-domain.com | https://your-domain.com |
+| NEXT_PUBLIC_ANALYTICS_ID | localhost | staging.your-domain.com | your-domain.com |
 | NEXT_PUBLIC_FORM_ENDPOINT | dev_form | staging_form | prod_form |
 | CMS_API_TOKEN | (dev_token) | (staging_token) | (prod_token) |
+
+Use your real production domain for `NEXT_PUBLIC_SITE_URL` so Open Graph image URLs resolve correctly on social platforms.
 
 **Timeline:** 15 minutes
 
@@ -372,10 +415,7 @@ Create `src/styles/tokens.css` from Phase 0 DESIGN_TOKENS section:
   --color-bg-light: #ffffff;
   --color-bg-dark: #0f172a;
 
-  /* Typography (Fluid scales from Phase 0) */
-  --font-base: 'Inter', system-ui, sans-serif;
-  --font-heading: 'Poppins', sans-serif;
-  --font-mono: 'Fira Code', monospace;
+  /* Typography scale tokens (font-family variables come from next/font in layout.tsx) */
 
   --text-xs: clamp(0.75rem, 2vw, 0.875rem);
   --text-sm: clamp(0.875rem, 2.5vw, 1rem);
@@ -452,14 +492,13 @@ Create `src/styles/tokens.css` from Phase 0 DESIGN_TOKENS section:
 Update `src/styles/globals.css`:
 
 ```css
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* Import token variables */
 @import './tokens.css';
 @import './animations.css';
 @import './accessibility.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* Base styles */
 html {
@@ -469,6 +508,7 @@ html {
 }
 
 body {
+  /* next/font/google attaches --font-base on the body class in layout.tsx */
   font-family: var(--font-base);
   font-size: var(--text-base);
   line-height: var(--line-height-normal);
@@ -497,6 +537,7 @@ const config: Config = {
   content: [
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/content/**/*.{md,mdx}',
   ],
   theme: {
     extend: {
@@ -818,7 +859,7 @@ Configure per-environment secrets in Vercel:
 ### Task 7: CI/CD Pipeline (GitHub Actions)
 
 **Why this?**  
-Automate linting, building, Lighthouse audits, bundle size checks.
+Automate linting, type safety, build checks, and Lighthouse audits.
 
 **Deliverable 7.1: GitHub Actions Workflow**
 
@@ -857,7 +898,27 @@ jobs:
       - name: TypeScript type check
         run: npm run type-check
 
+      # Unit tests (Vitest)
+      - name: Run unit tests
+        run: npm run test
+
+      # E2E tests (Playwright)
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Run E2E tests
+        run: npm run test:e2e
+
       # Build (Phase 0 decision: no build errors allowed)
+
+      - name: Cache Next.js build
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
+
       - name: Build Next.js
         run: npm run build
 
@@ -869,11 +930,6 @@ jobs:
           uploadArtifacts: true
           temporaryPublicStorage: true
 
-      # Bundle size check (Phase 0 Task 2: JS <50KB, CSS <20KB)
-      - name: Check bundle size
-        run: npm run bundle-analyze
-        continue-on-error: true
-
       # Deploy to Vercel (only on push to main)
       - name: Deploy to Vercel
         if: github.ref == 'refs/heads/main'
@@ -884,6 +940,41 @@ jobs:
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
 ```
 
+**Deliverable 7.1.1: Testing Config Files (required before running test scripts)**
+
+Create `vitest.config.ts`:
+
+```typescript
+import { defineConfig } from 'vitest/config';
+
+export default defineConfig({
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'lcov'],
+    },
+  },
+});
+```
+
+Create `playwright.config.ts`:
+
+```typescript
+import { defineConfig } from '@playwright/test';
+
+export default defineConfig({
+  testDir: 'tests/e2e',
+  webServer: {
+    command: 'npm run dev',
+    url: 'http://localhost:3000',
+    reuseExistingServer: !process.env.CI,
+    timeout: 120000,
+  },
+});
+```
+
 **Deliverable 7.2: Lighthouse Config**
 
 Create `lighthouserc.json` (performance budget enforcement):
@@ -892,6 +983,9 @@ Create `lighthouserc.json` (performance budget enforcement):
 {
   "ci": {
     "collect": {
+      "startServerCommand": "npm run start",
+      "startServerReadyPattern": "localhost:3000",
+      "startServerReadyTimeout": 120000,
       "url": [
         "http://localhost:3000/"
       ],
@@ -926,17 +1020,18 @@ Create `lighthouserc.json` (performance budget enforcement):
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint src --max-warnings 0",
+    "lint": "next lint --dir src",
     "lint:fix": "eslint src --fix",
     "format": "prettier --write src",
     "format:check": "prettier --check src",
     "type-check": "tsc --noEmit",
-    "bundle-analyze": "ANALYZE=true npm run build",
-    "test": "jest",
+    "test": "vitest",
     "test:e2e": "playwright test"
   }
 }
 ```
+
+Bundle analyzer is intentionally deferred to Phase 4. Reason: `ANALYZE=true` does nothing unless `@next/bundle-analyzer` is installed and wired in `next.config.js`.
 
 **Timeline:** 30 minutes
 
@@ -1028,12 +1123,14 @@ Create placeholder files for component inventory:
 **UI Primitives:**
 ```typescript
 // src/components/ui/Button.tsx
-import React from 'react';
+import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import { twMerge } from 'tailwind-merge';
+import { clsx } from 'clsx';
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'outline';
   size?: 'sm' | 'md' | 'lg';
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export function Button({ variant = 'primary', size = 'md', children, ...props }: ButtonProps) {
@@ -1049,8 +1146,13 @@ export function Button({ variant = 'primary', size = 'md', children, ...props }:
     lg: 'px-6 py-3 text-lg',
   };
 
+  const { className, ...rest } = props;
+
   return (
-    <button className={`${baseStyles} ${variantStyles[variant]} ${sizeStyles[size]}`} {...props}>
+    <button
+      className={twMerge(clsx(baseStyles, variantStyles[variant], sizeStyles[size], className))}
+      {...rest}
+    >
       {children}
     </button>
   );
@@ -1090,13 +1192,18 @@ Establish meta tags, fonts, providers for entire app.
 
 **Deliverable 9.1: `src/app/layout.tsx` (Root Layout)**
 
-Create root layout with meta tags + fonts (Phase 0 Task 6 SEO):
+Create root layout with meta tags + Next.js font optimization (Phase 0 Task 6 SEO):
 
 ```typescript
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
+import { Inter, Poppins, Fira_Code } from 'next/font/google';
 import './globals.css';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://portfolio.local';
+
+const inter = Inter({ subsets: ['latin'], variable: '--font-base' });
+const poppins = Poppins({ weight: ['600', '700'], subsets: ['latin'], variable: '--font-heading' });
+const firaCode = Fira_Code({ subsets: ['latin'], variable: '--font-mono' });
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -1108,7 +1215,7 @@ export const metadata: Metadata = {
   generator: 'Next.js',
   applicationName: 'Portfolio',
   referrer: 'strict-origin-when-cross-origin',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=5',
+  // viewport removed for Next.js 14+ (exported separately below)
   robots: 'index, follow',
   openGraph: {
     type: 'website',
@@ -1130,23 +1237,23 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <head>
-        {/* Fonts */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700&family=Fira+Code:wght@400;500&display=swap"
-          rel="stylesheet"
-        />
+        {/* Fonts are handled by next/font/google above (no external <link> tags needed) */}
 
         {/* Plausible Analytics (Phase 0 Task 5 event tracking) */}
         {process.env.NEXT_PUBLIC_ANALYTICS_ID && (
           <script
             defer
-            data-domain={process.env.NEXT_PUBLIC_SITE_DOMAIN || 'portfolio.local'}
+            data-domain={process.env.NEXT_PUBLIC_ANALYTICS_ID}
             src="https://plausible.io/js/script.js"
           />
         )}
@@ -1154,7 +1261,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Favicon */}
         <link rel="icon" href="/favicon.ico" />
       </head>
-      <body>
+      <body className={`${inter.variable} ${poppins.variable} ${firaCode.variable}`}>
         {children}
       </body>
     </html>
@@ -1285,12 +1392,59 @@ export async function GET() {
 
 ---
 
+## Testing & Validation
+
+Purpose: catch regressions early and validate each Phase 1 deliverable automatically.
+
+- **Type checking:** `npm run type-check` (uses `tsc --noEmit`). Fails CI on type errors.
+- **Lint + format:** `npm run lint` and `npm run format:check`. Enforced in CI and pre-commit hooks.
+- **Unit tests:** Use Vitest + React Testing Library for component logic and utilities. Script: `npm run test` (coverage target optional, e.g. 80%).
+- **Integration / E2E tests:** Use Playwright to validate critical flows (home navigation, contact form submit, project page rendering). Script: `npm run test:e2e`.
+- **Accessibility tests:** Integrate axe (jest-axe or axe-playwright) in unit/E2E tests to catch ARIA/contrast issues.
+- **Visual regression:** Optional Storybook + Chromatic or Playwright snapshot tests for critical components (Hero, ProjectCard).
+- **Performance & SEO:** Lighthouse CI (already in CI) validates performance budgets and Core Web Vitals.
+- **Bundle analysis:** `npm run bundle-analyze` to spot large dependencies; enforce in CI as a warning.
+- **Contract validation:** Use `zod` (or similar) to validate API payloads and content model at runtime in `src/lib` and API routes.
+- **Pre-commit checks:** Use `husky` + `lint-staged` to run `lint`, `format:check`, and quick tests on staged files.
+- **Health endpoint:** `/api/health` returns status — used by monitoring and CI smoke checks.
+
+CI mapping: add steps in `.github/workflows/ci.yml` (Task 7) to run unit tests, Playwright E2E, accessibility checks, and upload coverage reports. Keep Lighthouse and bundle checks as part of the same pipeline.
+
+Quick npm scripts to add (if not already present):
+
+```json
+{
+  "scripts": {
+    "test": "vitest",
+    "test:coverage": "vitest --coverage",
+    "test:e2e": "playwright test",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src --max-warnings 0",
+    "format:check": "prettier --check src"
+  }
+}
+```
+
+Where this is documented:
+- Testing steps and CI mapping are part of **Task 7: CI/CD Pipeline** in this document.
+- Type checks and type strategy are in **Task 3: Configure Next.js & TypeScript**.
+- Component/unit test targets align with **Task 8: Base Components & Types**.
+
+Recommendation: scaffold minimal test tooling now (Vitest + Playwright + husky + zod) and add two smoke tests:
+1. Unit test for `Button` component renders and responds to click.
+2. Playwright smoke test: homepage loads and `/api/health` returns 200.
+
+Next step: I can add the Test Strategy section (done) and scaffold the initial test dependencies and two smoke tests. Proceed to scaffold tests now?
+
+---
+
 ## Phase 1 Completion Checklist
 
 Once complete, you should have:
 
-- ✅ Next.js 5.1 running locally (`npm run dev` works)
+- ✅ Next.js App Router running locally (`npm run dev` works)
 - ✅ TypeScript strict mode enabled + no build errors
+- ✅ `package.json`, `vitest.config.ts`, and `playwright.config.ts` documented as part of the scaffold wiring
 - ✅ Design tokens implemented as CSS variables + Tailwind config
 - ✅ `.env.local` and `.env.example` created + Vercel secrets configured
 - ✅ Git repo initialized + connected to GitHub + Vercel
@@ -1310,6 +1464,20 @@ Once Phase 1 complete, **Phase 2 focus:**
 - Implement ContactForm (with client-side validation from Phase 0)
 - Set up form submission endpoint (Phase 0 Task 1 + 8.1 Formspree/Basin)
 - Verify Lighthouse > 80 before hero animation experiments
+
+## Testing Flow Summary
+
+Use both layers of testing together:
+
+- **Unit tests** (Vitest) answer: "Does this component or utility work in isolation?"
+- **E2E tests** (Playwright) answer: "Does the actual user flow work in the browser?"
+
+Recommended early smoke tests:
+
+- `Button` renders and responds to click in a unit test.
+- Home page loads and `/api/health` returns `200` in a Playwright test.
+
+That gives you fast feedback on small mistakes before you build more pages.
 
 ---
 
