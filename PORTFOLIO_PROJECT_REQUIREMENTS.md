@@ -473,24 +473,41 @@ This path prioritizes:
 **Why first:** Before any code, you need schema clarity (3.4 hybrid) and design tokens (6.4) so all builders follow the same patterns.
 
 **Deliverables:**
-- [ ] Content taxonomy document (projects, blog, case studies, meta fields)
-- [ ] Design token system (colors, typography, spacing, animation)
-- [ ] Page tree / navigation wireframe
-- [ ] Content model schema (frontmatter + CMS structure for 3.4)
+- [ ] `PHASE_0_ARCHITECTURE_FOUNDATION.md` (single source of truth with all 11 tasks):
+  - Content taxonomy (projects, blog, case studies, lead forms, success strategy)
+  - Design token system (colors, typography, spacing, motion, a11y, performance budgets, fluid type)
+  - Page tree / navigation wireframe with /contact/success route
+  - Content model schema (frontmatter + CMS structure for 3.4)
+  - Audience messaging strategy (mixed-audience layering)
+  - Event tracking taxonomy (conversion events, lead qualification, analytics consent)
+  - SEO metadata templates and structured data examples
+  - Next.js folder structure and component organization
+  - Code standards and conventions (naming, git workflow, a11y patterns, image naming)
+  - Error handling and loading state strategy
+  - Environment variable schema (.env.local / .env.example templates)
+  - Lead success flow and post-submission strategy
+  - Copy drafts for Phase 7 (value proposition, About Me narrative)
 
 **Gating criteria:**
-- Content model reviewed and signed off
-- Design tokens defined in code-ready format
-- IA agreed with mixed-audience messaging layers
+- PHASE_0_ARCHITECTURE_FOUNDATION.md reviewed and signed off
+- Content model supports mixed-audience messaging (Task 4)
+- Design tokens defined in code-ready format (colors, spacing, fluid typography)
+- Performance budgets documented (50KB main JS, 20KB CSS, <150KB hero image)
+- IA includes /contact/success route and next-step CTAs for lead gen funnel
+- All Tasks 1-11 completed and cross-checked for consistency
 
 **Decision Dependencies:**
-- **3.4 (Hybrid):** Requires dual-pipeline governance → create content model checklist for static pages vs. CMS pages
-- **6.4 (Design system first):** Requires token definitions → build token file (JSON/YAML) used across all phases
-- **7.3 (Content hub):** Requires taxonomy → document case study structure, blog categories, depth levels
+- **3.4 (Hybrid):** Requires dual-pipeline governance → document static pages vs. CMS pages in content model
+- **6.4 (Design system first):** Requires token definitions → all colors, spacing, typography, motion in one place
+- **7.3 (Content hub):** Requires taxonomy → case study structure, blog categories, depth levels documented
+- **1.2 (Lead gen):** Requires success flow → /contact/success route with next-step CTAs designed
+- **12.1 (WCAG AA):** Requires a11y tokens → focus ring, color contrast, min font size documented
+- **11.2 (Performance budget):** Requires hard constraints → perf budgets locked in as non-negotiable
 
 **Risk if skipped:**
 - Rework later when content doesn't fit framework (high cost)
 - Inconsistent design tokens across pages (visual debt)
+- No clear lead gen funnel (conversion tracking confused)
 
 ---
 
@@ -539,7 +556,7 @@ This path prioritizes:
 - [ ] About page (narrative + brief credibility layer)
 - [ ] Contact page (third-party form for 8.1, or simple contact email)
 - [ ] 404 page
-- [ ] Implement design tokens in Astro/Tailwind
+- [ ] Implement design tokens in Next.js/Tailwind
 - [ ] SEO metadata component (title, meta, OG tags for 9.2)
 - [ ] Sitemap generation
 
@@ -586,7 +603,7 @@ This path prioritizes:
 - Dynamic route generation working (`getStaticPaths`)
 
 **Decision Dependencies:**
-- **3.4 (Hybrid):** Core pages stay in `pages/` directory, dynamic content from CMS → separate content sources
+- **3.4 (Hybrid):** Core pages stay in the Next.js App Router, dynamic content comes from CMS/server components → separate content sources
 - **4.2 (ISR):** Configure `revalidate` in `getStaticProps` for blog/case studies (e.g., `revalidate: 3600`)
 - **5.1 (Next.js):** Use App Router conventions, React Server Components for CMS fetching
 - **7.3 (Content hub):** Build dynamic archive/filtering for blog using dynamic routes → `[slug].tsx` patterns
@@ -694,7 +711,7 @@ This path prioritizes:
 **Decision Dependencies:**
 - **13.2 (Automated essentials):** Lighthouse CI in GitHub Actions → run on every PR
 - **12.1 (WCAG AA):** Manual accessibility audit needed → document findings and fixes
-- **5.2 (Astro):** Astro build is deterministic → test in CI environment
+- **5.1 (Next.js):** Next.js build is deterministic → test in CI environment
 
 **Risk if skipped:**
 - Launch with broken links or poor mobile UX (bad first impression)
@@ -711,7 +728,7 @@ This path prioritizes:
 **Deliverables:**
 - [ ] Write/gather portfolio project descriptions
 - [ ] Create 3-5 case studies (or detailed project write-ups)
-- [ ] Write About page narrative (brand story + credibility)
+- [ ] Write About page narrative (brand story + credibility, start from `COPY_DRAFTS.md`)
 - [ ] Publish 2-3 blog posts (build SEO authority for 9.2)
 - [ ] Optimize images and assets
 - [ ] Proofread all content (spelling, tone, links)
@@ -841,7 +858,7 @@ Phase 0 (Schema) → Phase 1 (Hosting/Build) → Phase 2 (Core Pages)
 | Phase | Feature Complete | Quality Gate | Risk Closed |
 |-------|------------------|--------------|------------|
 | 0 | Schema + tokens + IA | Schema reviewed, tokens code-ready | — |
-| 1 | Astro + Vercel | Build green, preview deploys | Hosting locked |
+| 1 | Next.js + Vercel | Build green, preview deploys | Hosting locked |
 | 2 | Core pages + design system | Lighthouse > 80, WCAG AA pass | Design consistency locked |
 | 3 | CMS + blog/case studies | Data fetches, revalidation works | Content scalability unlocked |
 | 4 | Motion + a11y | Perf budget enforced, reduced-motion works | Visual identity proven |

@@ -28,11 +28,9 @@ Your 3.4 (Hybrid) decision means:
 
 You need to know the structure of each before building templates.
 
-### Deliverable 1.1: Content Taxonomy Document
+### Deliverable 1.1: Content Taxonomy
 
-Create a file called `docs/CONTENT_TAXONOMY.md` in your repo (we'll create the repo structure next).
-
-**Template:**
+Define the schema for all content types that will live in your site (both static and CMS-driven):
 
 ```markdown
 # Content Taxonomy
@@ -120,7 +118,47 @@ Example:
   "publishedAt": "2026-01-15"
 }
 
-### 4. About Content (Static)
+### 4. Technical Case Study (3.4 Hybrid + 2.3 Technical Peers)
+Used on: /case-studies/[slug] (for academic/technical deep-dives like SENG 31353 or SENG 31242)  
+Fields:
+- `title` (required): Project title (e.g., "Game Development Engine with Physics Simulation")
+- `slug` (required): URL slug
+- `headline` (required): 1-line technical value prop
+- `body` (required): Long-form markdown/MDX with embedded code + diagrams (sections: problem, approach, architecture, key learnings)
+- `image` (required): Project hero/screenshot (1600x900px)
+- `role` (required): Your role (e.g., "Lead Engine Developer", "System Designer")
+- `timeline` (required): Duration or semester
+- `course` (optional): Course code if academic (e.g., "SENG 31353")
+- `tools` (required): Technologies and languages (e.g., ["C++", "DirectX", "Git", "Visual Studio"])
+- `codeRepositoryUrl` (required): Link to GitHub repo or code archive
+- `architectureDiagrams` (optional): Array of {title, image} for system diagrams (png/svg, embedded or linked)
+- `codeSnippets` (optional): Array of {title, language, code} for highlighted examples (stored as frontmatter or MDX components)
+- `metrics` (optional): Performance/quality metrics (e.g., "60 FPS maintained", "Code coverage: 85%")
+- `publishedAt` (required): ISO date
+
+**Example:**
+```json
+{
+  "title": "3D Game Development Engine with Physics Simulation",
+  "slug": "game-dev-engine-seng31353",
+  "headline": "Built a C++-based 3D game engine with real-time physics and rendering pipeline",
+  "course": "SENG 31353",
+  "role": "Lead Engine Developer",
+  "timeline": "4 months (Winter 2025)",
+  "tools": ["C++", "DirectX", "OpenGL", "Git"],
+  "codeRepositoryUrl": "https://github.com/yourname/game-engine",
+  "architectureDiagrams": [
+    {"title": "Engine Architecture", "image": "/images/case-studies/engine-architecture.png"},
+    {"title": "Physics Pipeline", "image": "/images/case-studies/physics-pipeline.svg"}
+  ],
+  "metrics": "60 FPS rendering, <5ms physics step",
+  "publishedAt": "2026-05-06"
+}
+```
+
+**Implementation note (Phase 1):** Use MDX for body content to embed `<CodeSnippet>` and `<ArchitectureDiagram>` components inline. Store diagrams in `/public/images/case-studies/` and code snippets in frontmatter or a JSON metadata file.
+
+### 5. About Content (Static)
 Used on: /about page  
 Fields:
 - `headline` (required): "About me" section title
@@ -129,7 +167,7 @@ Fields:
 - `skills` (optional): Array of skill categories with items
 - `testimonials` (optional if 2.2): Array of testimonial blocks
 
-### 5. Lead Capture Form (3.4 Hybrid + 1.2 Lead Gen + 8.1 Third-party Forms)
+### 6. Lead Capture Form (3.4 Hybrid + 1.2 Lead Gen + 8.1 Third-party Forms)
 Used on: /contact page, home CTA section  
 Fields to capture:
 - `name` (required): Full name (used for personalization in follow-up)
@@ -159,7 +197,7 @@ Fields to capture:
 
 **Third-party form service (8.1):** Formspree, Basin, or Getform can capture this schema directly.
 
-### 6. Navigation & Metadata
+### 7. Navigation & Metadata
 - `meta.title`: Page title (< 60 chars)
 - `meta.description`: Page meta description (< 160 chars)
 - `meta.image`: OG image for social (1200x630px)
@@ -176,9 +214,9 @@ Your 6.4 decision means you're building a **design system from the start**, not 
 - Accessibility standards (12.1 WCAG AA) via focus/contrast tokens
 - Performance budget as hard constraints (11.2/11.3)
 
-### Deliverable 2.1: Design Tokens File
+### Deliverable 2.1: Design Tokens
 
-Create a file called `docs/DESIGN_TOKENS.md` (or `tokens.json` for code implementation later).
+Define all design tokens that will drive consistency across the site. These map directly to Tailwind config and CSS variables in Phase 1.
 
 **Color Palette:**
 
@@ -408,8 +446,7 @@ Your 7.3 (Content hub + blog/case studies) and 2.4 (Mixed audience) require a st
 
 ### Deliverable 3.1: Page Tree & Navigation Map
 
-```markdown
-# Site Information Architecture
+Define all pages and routes that will exist on the site:
 
 ## URL Structure
 
@@ -473,9 +510,8 @@ You have a contact form (Task 1) and conversion tracking plan (10.1 analytics), 
 
 ### Deliverable 3.2: Lead Success Strategy
 
-Create a file called `docs/LEAD_SUCCESS_STRATEGY.md`:
+Define the post-submission flow and success experience:
 
-```markdown
 # Lead Success & Post-Submission Flow
 
 ## Step 1: Form Submission
@@ -629,9 +665,8 @@ Your 10.1 (Basic Analytics) choice means you need to know upfront what events ma
 
 ### Deliverable 5.0: Event Taxonomy
 
-Create a file called `docs/EVENT_TRACKING.md`:
+Define all conversion events and analytics tracking:
 
-```markdown
 # Conversion Events (10.1 Basic Analytics)
 
 ## Lead Generation Events (1.2 Lead Gen goal)
@@ -801,12 +836,9 @@ For more info: [Plausible Privacy Policy](https://plausible.io/privacy)
 ### Why this?
 Your 9.2 choice means structured data + keyword optimization from day 1. Don't leave it to the end.
 
-### Deliverable 5.1: SEO Metadata Sheet
+### Deliverable 6.1: SEO Metadata Strategy
 
-Create a file called `docs/SEO_METADATA.md`:
-
-```markdown
-# SEO Metadata & Structured Data
+Define metadata, structured data, and keyword strategy for all pages:
 
 ## Page-Level Metadata
 
@@ -935,10 +967,7 @@ Your 5.1 (Next.js App Router) + 6.4 (Design System First) decisions require a fo
 
 ### Deliverable 8.1: Next.js Folder Structure
 
-Create a file called `docs/PROJECT_STRUCTURE.md`:
-
-```markdown
-# Next.js Project Folder Structure (App Router)
+Define the folder layout and component organization that will be used in Phase 1:
 
 ## High-Level Overview
 \`\`\`
@@ -1165,10 +1194,7 @@ Before Phase 1 scaffolding, lock in:
 
 ### Deliverable 9.1: Base Component Inventory
 
-Create a file called `docs/COMPONENT_INVENTORY.md`:
-
-\`\`\`markdown
-# Component Inventory (Design System First)
+List all UI primitives, layout components, and page-level modules that will be built:
 
 ## UI Primitives (src/components/ui/)
 Built directly from DESIGN_TOKENS.md. All token-driven.
@@ -1279,10 +1305,7 @@ Composed sections from UI + Layout. These are **page-level sections**.
 
 ### Deliverable 9.2: Code Standards & File Naming
 
-Create a file called `docs/CODE_STANDARDS.md`:
-
-\`\`\`markdown
-# Code Standards & Conventions
+Define naming conventions, git workflow, and development patterns:
 
 ## File Naming
 
@@ -1536,9 +1559,8 @@ ISR (4.2) dynamic routes fail occasionally. You need graceful fallbacks so users
 
 ### Deliverable 10.1: Error & Loading States
 
-Create a file called \`docs/ERROR_HANDLING_STRATEGY.md\`:
+Define error pages, loading states, and ISR fallback strategy:
 
-\`\`\`markdown
 # Error & Loading States (4.2 ISR + 11.3 UX)
 
 ## Loading States (During ISR Revalidation)
@@ -1693,9 +1715,8 @@ Phase 1 scaffolding requires API keys, form endpoints, and CMS credentials. Docu
 
 ### Deliverable 11.1: Environment Variable Schema
 
-Create a file called \`docs/ENV_VARS.md\`:
+Define all environment variables and secrets configuration:
 
-\`\`\`markdown
 # Environment Variables & Secrets Schema
 
 ## Overview
@@ -1817,6 +1838,96 @@ Add to \`.gitignore\`:
 node_modules/
 \`\`\`
 
+---
+
+## Task 12: Draft Copy for Phase 7 Launch (Value Proposition & About Me)
+
+### Why this now?
+Phase 7 (Content Refinement) blocks on writing work. Draft the core copy in Phase 0 so you don't scramble for copy when you're building. This also ensures messaging is consistent with the mixed-audience strategy (2.4) and lead gen funnel (1.2).
+
+### Deliverable 12.1: Value Proposition Draft
+
+**Working Headline Options:**
+1. "Building thoughtful digital experiences that balance clarity, motion, and performance."
+2. "I design and build portfolio experiences that turn visitors into conversations."
+3. "I create fast, accessible portfolio sites that showcase work and generate leads."
+
+**Supporting Subheadline Options:**
+1. "Focused on mixed audiences: recruiters, clients, and technical peers."
+2. "Designed with a design-system-first workflow, privacy-aware analytics, and conversion intent."
+3. "Built to scale from static content to CMS-driven publishing without rework."
+
+**Short Bio Snippet:**
+I build portfolio sites that are visually deliberate, technically disciplined, and easy to maintain. My work balances strong storytelling, accessibility, and performance so the site can support both credibility and lead generation.
+
+---
+
+### Deliverable 12.2: About Me Narrative Draft
+
+**Structure:**
+1. What I do (opening hook)
+2. Why I do it (philosophy/values)
+3. What makes my work different (competitive angle)
+4. What kind of projects I want to take on (CTA framing)
+
+**Draft Paragraph:**
+I build digital experiences with a focus on clarity, craft, and measurable outcomes. My approach blends design systems, front-end engineering, and content strategy so the final product feels polished without sacrificing performance or accessibility. I care about sites that communicate well to multiple audiences, load quickly, and make it easy for the right people to get in touch.
+
+**Talking Points:**
+- I value maintainable architecture over one-off visual tricks.
+- I prefer systems that support future content growth without rework.
+- I care about responsiveness, accessibility, and intentional motion (respects prefers-reduced-motion).
+- I want the site to serve both reputation and conversion goals (mixed audience 2.4).
+- Performance is non-negotiable: fast sites are respectful sites (11.2 budget).
+
+---
+
+### Deliverable 12.3: Phase 7 Content Checklist
+
+**Core Copy** (home + about pages)
+- [ ] Finalize home hero headline (pick from working options above)
+- [ ] Finalize home hero subheadline
+- [ ] Finalize short bio snippet (use or refine the draft)
+- [ ] Finalize About page opening paragraph
+- [ ] Finalize About page closing CTA (link to contact or projects)
+
+**Case Studies** (3 required by Phase 7)
+- [ ] Draft 3 case study outlines
+- [ ] Define challenge / solution / impact sections for each
+- [ ] List required visuals or diagrams for each case study
+- [ ] Identify metrics or outcomes for each case study
+
+**Blog Posts** (3 required by Phase 7)
+- [ ] Draft 3 blog post titles
+- [ ] Draft 3 blog post summaries (150-char excerpts)
+- [ ] Decide which post is best for launch timing
+- [ ] Map each post to one audience segment (recruiters, clients, or peers)
+
+**Conversion Copy** (forms + success pages)
+- [ ] Draft contact page CTA copy and form instructions
+- [ ] Draft success page headline + subheadline + next-step CTAs
+- [ ] Draft email confirmation message (Phase 5+)
+- [ ] Review tone for mixed-audience clarity (2.4)
+
+**Final Review** (polish)
+- [ ] Check copy against value proposition (is it consistent?)
+- [ ] Check copy against mixed-audience messaging (does each section serve all audiences?)
+- [ ] Check copy against SEO keyword targets (9.2)
+- [ ] Proofread for tone, grammar, and voice consistency
+
+---
+
+### Messaging Alignment
+
+Ensure Phase 7 copy aligns with Phase 0 decisions:
+- **Hero section** addresses all 3 audiences with layered CTAs
+- **About page** reinforces value prop from multiple angles (credibility + technical depth + conversion readiness)
+- **Case studies** show concrete outcomes (measurable impact for clients, technical depth for peers)
+- **Blog posts** demonstrate thought leadership and SEO authority
+- **Contact form & success page** complete the lead gen funnel with clear next steps
+
+---
+
 ## Implementation Timeline
 
 - **Phase 1:** Initialize .env.local + .env.example, add Plausible analytics ID
@@ -1827,11 +1938,11 @@ node_modules/
 
 ---
 
-## Task 7 (Updated): Create Phase 0 Checklist
+## Task 7: Create Phase 0 Completion Checklist
 
 ### Deliverable 7.1: Phase 0 Completion Checklist
 
-Add this to \`docs/PHASE_0_CHECKLIST.md\`:
+Track completion of all Phase 0 deliverables and validation tasks:
 
 \`\`\`markdown
 # Phase 0 Completion Checklist
@@ -1840,6 +1951,7 @@ Add this to \`docs/PHASE_0_CHECKLIST.md\`:
 - [ ] Blog post schema defined (fields: title, slug, body, category, tags, date, image)
 - [ ] Project card schema defined (fields: title, description, image, tags, link, featured, **githubUrl, demoUrl, techStackDepth**)
 - [ ] Case study schema defined (fields: title, headline, impact, tools, timeline)
+- [ ] **Technical case study schema defined** (fields: title, code snippets, architecture diagrams, repository URL, for academic/deep-dive projects)
 - [ ] About content structure defined
 - [ ] Contact form schema defined (fields: name, email, message, projectType, budget, timeline, website)
 - [ ] Lead qualification logic documented (what makes a "qualified" lead?)
@@ -1930,13 +2042,26 @@ Add this to \`docs/PHASE_0_CHECKLIST.md\`:
 - [ ] Internal linking strategy defined
 - [ ] Sitemap structure planned
 
+## Copy & Messaging ✓ (Task 12)
+- [ ] Value proposition headline drafted (pick from 3 working options)
+- [ ] Value proposition subheadline drafted (supporting message)
+- [ ] Short bio snippet drafted (for social cards and preview)
+- [ ] About page narrative drafted (structure + opening paragraph)
+- [ ] Core copy aligned with mixed-audience strategy (2.4)
+- [ ] Core copy aligned with lead gen funnel (1.2)
+- [ ] Case study outline structure decided (challenge, solution, impact, learnings)
+- [ ] Blog post outline and category structure decided
+- [ ] Contact page CTA copy drafted
+- [ ] Success page CTA copy drafted (/contact/success next steps)
+- [ ] Copy review checklist created (value prop alignment, tone, SEO keywords, proofreading)
+
 ## Ready for Phase 1? ✓
-- [ ] All 12 documents created and reviewed
+- [ ] All 12 tasks completed and validated
 - [ ] No conflicting decisions across any layer
-- [ ] Content model is DRY (no duplicate field definitions) + includes lead capture + success strategy
-- [ ] Design tokens are reusable (not page-specific) AND include a11y + perf budgets + fluid typography
+- [ ] Content model is DRY + includes lead capture + success strategy
+- [ ] Design tokens are reusable + include a11y + perf budgets + fluid typography
 - [ ] Accessibility standards (WCAG AA) locked in via focus/contrast tokens + fluid scaling
-- [ ] Performance budget constraints documented and agreed (will enforce in CI Phase 1+)
+- [ ] Performance budget constraints documented and agreed (50KB JS, 20KB CSS, <150KB images)
 - [ ] Browser support policy documented (modern evergreen only)
 - [ ] Event taxonomy defined + consent strategy decided (Phase 5 implementation planned)
 - [ ] Next.js App Router folder structure is clear (no ambiguity in file placement)
@@ -1945,7 +2070,7 @@ Add this to \`docs/PHASE_0_CHECKLIST.md\`:
 - [ ] Error handling & loading states planned (404, error boundary, ISR fallbacks)
 - [ ] Environment variables schema documented (.env.local + .env.example)
 - [ ] Lead generation funnel complete (success page, next-step CTAs, follow-up planned)
-- [ ] Early copy drafts started (value proposition, About Me narrative)
+- [ ] Copy drafts completed (value proposition, About Me narrative, Phase 7 checklist)
 - [ ] Team/stakeholder feedback collected and incorporated (if applicable)
 
 ## Sign-Off
@@ -1962,34 +2087,24 @@ Next: Phase 1 (Project Setup & Hosting)
 
 ## Summary: What You Have After Phase 0
 
-✅ Content model schema (blog posts, projects, case studies, lead forms, success strategy)  
-✅ Design system tokens (colors, typography, spacing, motion, a11y, performance budgets, fluid typography)  
-✅ Site information architecture (URLs, page tree, navigation, /contact/success route)  
-✅ Audience messaging strategy (layered CTAs, mixed-audience UX, lead success flow)  
-✅ SEO metadata framework (titles, descriptions, structured data, image naming for SEO)  
-✅ Event tracking taxonomy (conversion events, lead qualification, consent strategy)  
-✅ Next.js project folder structure (App Router + design system organization)  
-✅ Base component inventory (UI primitives, layout, modules)  
-✅ Code standards & conventions (naming, git workflow, TypeScript, a11y patterns, image naming)  
-✅ Error & loading state strategy (404, error boundary, ISR fallbacks, skeletons)  
-✅ Environment variables schema (.env.local template, .env.example, public/private separation)  
-✅ Lead generation funnel (form → success page → next steps → email follow-up)  
+This single document now contains all 12 tasks and deliverables:
 
-**Artifacts:**
-- \`docs/CONTENT_TAXONOMY.md\` (blog posts, projects, case studies, lead form schema)
-- \`docs/DESIGN_TOKENS.md\` (colors, typography, spacing, motion, a11y tokens, performance budgets, **fluid typography**)
-- \`docs/SITE_ARCHITECTURE.md\` (URL structure, page tree, navigation, **+/contact/success**)
-- \`docs/AUDIENCE_MESSAGING.md\` (messaging matrix for mixed audiences)
-- \`docs/LEAD_SUCCESS_STRATEGY.md\` (**NEW:** post-submission flow, success page, next-step CTAs)
-- \`docs/EVENT_TRACKING.md\` (event taxonomy for 10.1 analytics, **+consent strategy**)
-- \`docs/SEO_METADATA.md\` (titles, meta descriptions, structured data)
-- \`docs/ENV_VARS.md\` (**NEW:** environment variables, secrets, .env templates)
-- \`docs/PROJECT_STRUCTURE.md\` (Next.js App Router folder layout)
-- \`docs/COMPONENT_INVENTORY.md\` (base components + status tracking)
-- \`docs/CODE_STANDARDS.md\` (naming, git conventions, TypeScript, a11y patterns, **+image naming**)
-- \`docs/ERROR_HANDLING_STRATEGY.md\` (404, error boundaries, ISR fallbacks)
+✅ **Content Model** (Task 1): Projects, blog posts, case studies, lead capture forms, success strategy  
+✅ **Design System Tokens** (Task 2): Colors, typography, spacing, motion, a11y, performance budgets, fluid typography  
+✅ **Information Architecture** (Task 3): Page tree, navigation, URLs, `/contact/success` success route, lead success flow  
+✅ **Audience Messaging** (Task 4): Mixed-audience layering, CTAs, entry points  
+✅ **Event Tracking** (Task 5): Conversion events, lead qualification, analytics consent strategy  
+✅ **SEO Metadata** (Task 6): Meta templates, structured data, image naming  
+✅ **Phase 0 Checklist** (Task 7): Completion checklist for all tasks and deliverables  
+✅ **Project Folder Structure** (Task 8): Next.js App Router layout, component organization  
+✅ **Component Inventory** (Task 9): UI primitives, layout components, module sections, code standards, naming conventions  
+✅ **Error & Loading Handling** (Task 10): 404 pages, error boundaries, ISR fallbacks, skeletons  
+✅ **Environment Variables** (Task 11): `.env.local` and `.env.example` templates, secrets schema  
+✅ **Copy Drafts** (Task 12): Value proposition, About Me narrative, Phase 7 content checklist  
 
-**Next phase:** Phase 1 (Project Setup) uses all these as blueprints to initialize Next.js and configure Vercel hosting.
+**Single Source of Truth:** All content is in this document. No separate docs or files needed.
+
+**Next phase:** Phase 1 (Project Setup) uses all these definitions to initialize Next.js and configure Vercel hosting.
 
 ---
 
@@ -1998,9 +2113,9 @@ Next: Phase 1 (Project Setup & Hosting)
 **Day 1:** Tasks 1-2 (Content model + design tokens) = ~2-3 hours  
 **Day 2:** Tasks 3-4 (IA + messaging) = ~2 hours  
 **Day 3:** Tasks 5-6 (Event tracking + SEO) = ~1.5 hours  
-**Day 4:** Tasks 8-10 (Folder structure, components, code standards, error handling) = ~2 hours  
-**Day 5:** Tasks 11 + Success/Env/Image/Consent refinements = ~1.5 hours  
-**Day 6:** Review all docs, collect feedback, refine, final sign-off  
+**Day 4:** Task 7 (Checklist validation) + Tasks 8-10 (Folder structure, components, error handling) = ~2.5 hours  
+**Day 5:** Task 11 (Environment variables) + Task 12 (Copy drafts) = ~1.5 hours  
+**Day 6:** Final review, cross-checks, team feedback, sign-off = ~1-2 hours  
 
 **Total:** ~11-14 hours of focused planning & documentation (spread over 1-2 weeks).
 
@@ -2095,6 +2210,15 @@ Use this section to track decisions made during Phase 0:
 - **Context:** 1.2 lead gen needs clear conversion tracking + re-engagement
 - **Decision:** Dedicated /contact/success route with next-step CTAs (blog, projects)
 - **Why:** Clearer analytics tracking than modal/toast; keeps leads engaged while waiting
+
+### Q9: Level 8.2 Experiment — "Chat with my Resume" LLM feature?
+- **Context:** You have Google One AI Pro subscription; 1.3 Engineering Showcase + 2.3 Technical Peers audience wants depth
+- **Proposal:** Serverless function (Vercel Edge/AWS Lambda) calls Claude API to answer questions about your resume/projects
+- **Scope (Phase 8+):** Add `/api/chat-resume` endpoint that accepts user query, retrieves context from your project data, calls LLM, returns response
+- **Expected outcome:** Differentiator for technical peers; shows LLM integration + serverless infrastructure knowledge
+- **Risk:** LLM API costs (~$0.01-$0.05 per query); rate-limit aggressively (max 5 queries per session)
+- **Decision:** TBD — deprioritized for Phase 1-7, but Phase 8 can experiment if budget/interest allow
+- **Alternative:** Blog post series about "Building LLM Features on Vercel" instead of live feature
 
 ---
 
