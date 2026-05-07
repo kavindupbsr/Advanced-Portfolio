@@ -454,6 +454,165 @@ Update `.github/workflows/ci.yml` to include Lighthouse performance checks.
 
 ---
 
+## Node Version Compatibility and Dependency Mismatches
+
+This is the part that explains why a workflow can suddenly pass after changing the Node version.
+
+### 1. What Node.js Is Doing in Your Project
+
+Node.js is the runtime that runs your JavaScript tools outside the browser. In this project, Node runs:
+- `npm install` / `npm ci`
+- `next build`
+- Vitest
+- Playwright
+- ESLint and TypeScript
+
+That means the Node version in CI is not a side detail. It affects the whole toolchain.
+
+### 2. Why One Node Version Can Work and Another Can Fail
+
+Different package versions support different Node versions. A package can fail because:
+- it expects a newer Node feature
+- it uses syntax or APIs that are not available in an older Node version
+- it has native dependencies that behave differently across Node versions
+- it was tested mainly on LTS versions, not the newest release
+
+In simple terms: the same code can be fine, but the environment around it is different enough to break the install, tests, or build.
+
+### 3. Why Your Workflow Passed After Changing Node
+
+If the workflow started passing after a Node change, the most likely reason is:
+- the new Node version matched what your dependencies expect better
+- a package that was unstable on one version became stable on the other
+- CI and local development were no longer running on different runtime assumptions
+
+So the fix was not "the app changed". The fix was "the runtime matched the package compatibility better".
+
+### 4. The Main Signs of a Node or Dependency Compatibility Problem
+
+Look for these clues:
+- The failure happens during `npm ci` or `npm install`
+- A step passes locally but fails in GitHub Actions
+- The error mentions `engines`, `unsupported`, `node version`, or `requires Node`
+- A package build step crashes without a clear app bug
+- Playwright, Next.js, or Vitest starts failing only in one Node version
+- A new package version suddenly breaks the pipeline
+
+### 5. Easy Ways to Check What Is Wrong
+
+These are the fastest beginner-friendly checks:
+
+```bash
+node --version
+npm --version
+npm ci
+npm run build
+npm run test:e2e
+```
+
+If a problem is version-related, you will often see it here first.
+
+Other useful commands:
+
+```bash
+npm outdated
+npm ls
+npm explain <package-name>
+npx playwright --version
+```
+
+What they help with:
+- `npm outdated` shows packages that are behind newer releases
+- `npm ls` shows the installed dependency tree
+- `npm explain <package-name>` shows why a package is present
+- `npx playwright --version` checks the installed Playwright version
+
+### 6. Easy Ways to Track Dependency Incompatibilities
+
+If you want to catch problems before they break CI, use these tools and habits:
+
+#### Built-in / free tools
+- **GitHub Actions** — shows whether your workflow passes on the exact CI machine
+- **npm** — `npm outdated`, `npm ls`, `npm explain`, `npm audit`
+- **TypeScript / ESLint / build output** — often reveal version mismatch early
+- **Lockfile** (`package-lock.json`) — keeps installs reproducible
+
+#### Third-party tools
+- **Dependabot** — opens pull requests when packages have updates
+- **Renovate** — advanced dependency update automation with more control than Dependabot
+- **Snyk** — security and dependency risk scanning
+- **Socket** — dependency risk and package health signals
+- **npm-check-updates (ncu)** — quickly shows which dependencies can be upgraded
+
+These tools do not all do the same thing:
+- Dependabot and Renovate help you stay current
+- Snyk and Socket help you notice risk earlier
+- npm-check-updates helps you see upgrade opportunities fast
+
+### 7. The Easiest Beginner Workflow to Avoid Surprise Breakage
+
+Use this order when updating packages or Node:
+
+1. Check your current version
+   - `node --version`
+   - `npm --version`
+
+2. Check what the project expects
+   - Read `package.json`
+   - Look for `engines` if it exists
+   - Read the package changelog or release notes
+
+3. Test locally before pushing
+   - `npm ci`
+   - `npm run format:check`
+   - `npm run lint`
+   - `npm run type-check`
+   - `npm run test -- --run`
+   - `npm run test:e2e`
+   - `npm run build`
+
+4. Push and verify GitHub Actions
+   - If CI fails, compare the CI Node version with your local Node version
+
+5. Fix the mismatch at the source
+   - Pin Node to an LTS version
+   - Update the dependency
+   - Downgrade the dependency if the latest version is not compatible yet
+
+### 8. What to Be Most Careful About
+
+- Do not assume "latest" is always best
+- Do not mix many Node versions without a reason
+- Do not ignore warnings in CI logs
+- Do not update many dependencies at once if you are debugging a failure
+- Do not trust one successful run if the version matrix is still inconsistent
+
+### 9. The Simple Mental Model
+
+Think of compatibility like this:
+
+```text
+your code + your dependencies + Node version + CI environment = one system
+```
+
+If any one part changes, the system can behave differently.
+
+That is why a workflow can fail with one Node version and pass with another.
+
+### 10. Practical Rule of Thumb
+
+If you want the least surprise:
+- use a Node LTS version
+- keep CI and local development on the same version
+- update dependencies gradually
+- let GitHub Actions be your final consistency check
+
+## Beginner-Friendly Summary
+
+When Node or a dependency version is incompatible, the problem usually shows up in install, test, or build steps. The fastest way to find it is to compare the local Node version with the CI Node version, read the first real error in the log, and use tools like `npm outdated`, `npm ls`, Dependabot, or Renovate to keep versions under control.
+
+---
+
 ## Understanding Your CI Status
 
 ### ✅ Green Check (All Good)
