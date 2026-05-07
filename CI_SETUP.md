@@ -102,7 +102,7 @@ If you enable branch protection later, GitHub will require these checks to pass 
 
 The workflow runs on:
 - **Triggers:** `push` and `pull_request` to `main` and `develop` branches
-- **Node versions:** Tests against Node 18.x and 20.x (ensures compatibility)
+- **Node versions:** Tests against Node 20.x and 24.x (ensures compatibility)
 - **Timeout:** 30 minutes per run
 
 ### Pipeline Steps (in order)
@@ -276,12 +276,12 @@ If this command passes locally, it will **always** pass in CI. Push with confide
 
 ## Matrix Strategy
 
-The workflow tests against **two Node versions** (18.x and 20.x) to ensure compatibility. This means each push/PR runs the full pipeline twice.
+The workflow tests against **two Node versions** (20.x and 24.x) to ensure compatibility. This means each push/PR runs the full pipeline twice.
 
 Example output:
 ```
-✓ Node 18.x — all checks passed
 ✓ Node 20.x — all checks passed
+✓ Node 24.x — all checks passed
 ```
 
 ## Failing CI? Detailed Fixes
@@ -340,9 +340,9 @@ With it: you must create a PR, pass CI, and get approval (safe)
 
 ---
 
-### Q4: Why does CI test against Node 18 AND 20?
+### Q4: Why does CI test against Node 20 AND 24?
 
-**A:** To ensure your code works on different Node versions. Users might have Node 18, others Node 20. This catches compatibility issues early.
+**A:** To ensure your code works on different supported Node versions. This catches compatibility issues early.
 
 ---
 
@@ -362,7 +362,7 @@ All are important.
 
 ### Q6: How long does CI take?
 
-**A:** ~3-5 minutes per run. It's testing against Node 18 and 20, so 2 parallel runs.
+**A:** ~3-5 minutes per run. It's testing against Node 20 and 24, so 2 parallel runs.
 
 ---
 
@@ -478,7 +478,7 @@ Update `.github/workflows/ci.yml` to include Lighthouse performance checks.
 To modify the workflow:
 1. Edit `.github/workflows/ci.yml`
 2. Examples:
-   - Change `node-version: [18.x, 20.x]` to test different Node versions
+   - Change `node-version: [20.x, 24.x]` to test different Node versions
    - Add `environment: production` to deploy after successful CI
    - Add a new step to run custom scripts
 
