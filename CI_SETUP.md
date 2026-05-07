@@ -38,6 +38,66 @@ Any failed?  → Red X mark ❌ (fix and push again)
 ## Overview
 A GitHub Actions CI workflow has been created at `.github/workflows/ci.yml` that automatically validates your code on every push and pull request.
 
+## What Is GitHub Actions?
+
+GitHub Actions is GitHub's built-in automation system. It lets you run tasks automatically when something happens in your repository.
+
+Common things it can do:
+- Run tests when you push code
+- Check formatting and TypeScript errors
+- Build your app before deployment
+- Deploy to hosting platforms after a successful check
+
+In this project, GitHub Actions is used as the automated checker that protects your code before it reaches production.
+
+## Why the Workflow File Must Be in `.github/workflows/`
+
+GitHub only looks for workflow files in this exact folder at the root of the repository:
+
+```text
+.github/workflows/*.yml
+```
+
+Why this matters:
+- If the file is inside another folder, GitHub will not detect it
+- If the folder is not at the repo root, the workflow will not appear in the Actions tab
+- The file name can be anything like `ci.yml`, but the folder path must be exact
+
+Correct example:
+```text
+your-repo/
+   .github/
+      workflows/
+         ci.yml
+```
+
+## Do You Need a VS Code Extension For This?
+
+No, a VS Code extension is **not required** for GitHub Actions to work.
+
+Why people install one anyway:
+- Better YAML highlighting and autocomplete
+- Easier to spot indentation mistakes
+- Faster validation while editing workflow files
+
+Useful optional extensions:
+- **GitHub Actions** — helps with workflow syntax and action references
+- **YAML** — improves YAML editing and error detection
+
+So the extension is only a helper. The real workflow still runs on GitHub, not in VS Code.
+
+## How to Handle CI/CD in Practice
+
+Use this simple flow:
+1. Make your code change locally
+2. Run the validation command
+3. Push to GitHub
+4. Open the Actions tab and check the workflow result
+5. Fix any failing step locally
+6. Push again until it is green
+
+If you enable branch protection later, GitHub will require these checks to pass before merging.
+
 ## What the CI Pipeline Does
 
 The workflow runs on:
