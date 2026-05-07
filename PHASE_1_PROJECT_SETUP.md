@@ -174,7 +174,7 @@ portfolio/
 ├── next.config.js              # (Task 3: configure ISR, image optimization)
 ├── tsconfig.json               # (Task 4: strict mode enabled)
 ├── tailwind.config.ts          # (Task 5: tokens + custom config)
-├── .eslintrc.json              # (Task 6: code quality)
+├── eslint.config.mjs           # (Task 6: code quality, ESLint 9 flat config)
 ├── .prettierrc                 # (Task 6: formatting)
 ├── vitest.config.ts            # Unit test config (jsdom + coverage)
 ├── playwright.config.ts        # E2E test config (webServer + testDir)
@@ -346,23 +346,30 @@ const nextConfig = {
 module.exports = nextConfig;
 ```
 
-**Deliverable 3.3: `.eslintrc.json` (Code Quality)**
+**Deliverable 3.3: `eslint.config.mjs` (Code Quality, ESLint 9 Flat Config)**
 
 Update/verify ESLint config (from Phase 0 Task 9):
 
-```json
-{
-  "extends": [
-    "next/core-web-vitals",
-    "next/typescript"
-  ],
-  "rules": {
-    "react/no-unescaped-entities": "off",
-    "@next/next/no-html-link-for-pages": "off",
-    // Add project-specific rules as needed (Phase 4)
-  }
-}
+```javascript
+import { defineConfig, globalIgnores } from 'eslint/config';
+import nextVitals from 'eslint-config-next/core-web-vitals';
+import nextTs from 'eslint-config-next/typescript';
+
+const eslintConfig = defineConfig([
+  ...nextVitals,
+  ...nextTs,
+  globalIgnores([
+    '.next/**',
+    'out/**',
+    'build/**',
+    'next-env.d.ts',
+  ]),
+]);
+
+export default eslintConfig;
 ```
+
+If a project is on older ESLint versions, `.eslintrc.json` is acceptable. For this repository, use `eslint.config.mjs`.
 
 **Deliverable 3.4: `.prettierrc` (Code Formatting)**
 
@@ -1408,6 +1415,14 @@ Purpose: catch regressions early and validate each Phase 1 deliverable automatic
 - **Pre-commit checks:** Use `husky` + `lint-staged` to run `lint`, `format:check`, and quick tests on staged files.
 - **Health endpoint:** `/api/health` returns status — used by monitoring and CI smoke checks.
 
+Full local validation command (run before push/PR):
+
+```bash
+npm run format && npm run lint && npm run type-check && npm run test -- --run && npm run build
+```
+
+This command enforces formatting, linting, type safety, unit tests, and production build readiness in one pass.
+
 CI mapping: add steps in `.github/workflows/ci.yml` (Task 7) to run unit tests, Playwright E2E, accessibility checks, and upload coverage reports. Keep Lighthouse and bundle checks as part of the same pipeline.
 
 Quick npm scripts to add (if not already present):
@@ -1435,6 +1450,35 @@ Recommendation: scaffold minimal test tooling now (Vitest + Playwright + husky +
 2. Playwright smoke test: homepage loads and `/api/health` returns 200.
 
 Next step: I can add the Test Strategy section (done) and scaffold the initial test dependencies and two smoke tests. Proceed to scaffold tests now?
+
+---
+
+## Current Status and Deferral Policy (May 2026)
+
+This repository is partially through Phase 1. It is valid to defer remaining items, but keep the sequence intentional.
+
+Items already aligned:
+- Environment templates (`.env.example`, `.env.local`)
+- TypeScript strict setup (`tsconfig.json`)
+- Next config (`next.config.ts`)
+- Tailwind config + style tokens (`tailwind.config.ts`, `src/styles/*`)
+- Formatting/lint baseline (`.prettierrc`, `eslint.config.mjs`)
+
+Safe to defer briefly (finish before Phase 2 feature work):
+- Root layout metadata + custom font wiring
+- `src/app/not-found.tsx`
+- Marketing route group pages and API stubs
+- Component/type stubs
+- `vitest.config.ts`, `playwright.config.ts`, and smoke tests
+- `.github/workflows/ci.yml`
+
+Should not be deferred too long:
+- CI pipeline and baseline tests (must be in place before high-volume feature changes)
+- GitHub/Vercel integration for preview deployments
+
+Recommended rule:
+- Continue implementation now if you can.
+- If deferred, keep all remaining Phase 1 tasks closed before Phase 2 implementation starts.
 
 ---
 
