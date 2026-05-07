@@ -9,6 +9,8 @@ on:
     branches:
       - main
       - develop
+  # Allow manual runs from the Actions UI
+  workflow_dispatch: {}
 
 jobs:
   ci:
