@@ -649,6 +649,7 @@ Consider adding:
 - **Coverage reports** — Upload code coverage to Codecov
 - **Deployment step** — Deploy to Vercel/Netlify after CI passes
 - **Lighthouse CI** — Performance testing (config already exists at `lighthouserc.json`)
+- **Deployment comparison guide** — See `DEPLOYMENT_OPTIONS_PROS_CONS.md` for platform pros/cons
 
 ---
 
